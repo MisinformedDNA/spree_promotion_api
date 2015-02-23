@@ -18,8 +18,16 @@ Spree::Api::PromotionsController.class_eval do
       description: params[:promotion][:name], # pass in name as description
     match_policy: 'all'}) #default
 
-    # pass in product ids
-    @promotion.rules << Spree::Promotion::Rules::Product.create({preferred_match_policy: "any", products: Spree::Product.find(params[:promotion][:product_ids].split(","))})
+    case params[:promotion][:type]
+    when 'products'
+      # pass in product ids
+      @promotion.rules << Spree::Promotion::Rules::Product.create({preferred_match_policy: "any", products: Spree::Product.find(params[:promotion][:product_ids].split(","))})
+    when 'variants'
+      @promotion.rules << Spree::Promotion::Rules::Variant.create({preferred_match_policy: "any", variants: Spree::Variant.find(params[:promotion][:variant_ids].split(","))})
+    else
+      invalid_resource!(@promotion)
+      return
+    end
 
     # pass in first_item and additional_item
     @promotion.actions << Spree::Promotion::Actions::CreateItemAdjustments.create({
@@ -43,15 +51,32 @@ Spree::Api::PromotionsController.class_eval do
       description: params[:promotion][:name]) # pass in name as description
     end
 
-    if params[:promotion][:product_ids]
-      # find promotion's product rule
-      promo_rule = @promotion.rules.find_by(type: Spree::Promotion::Rules::Product)
-      # pass in product ids
-      if promo_rule
-        promo_rule.update(products: Spree::Product.find(params[:promotion][:product_ids].split(",")))
-      else
-        @promotion.rules << Spree::Promotion::Rules::Product.create({preferred_match_policy: "any", products: Spree::Product.find(params[:promotion][:product_ids].split(","))})
+    case params[:promotion][:type]
+    when 'products'
+      if params[:promotion][:product_ids]
+        # find promotion's product rule
+        promo_rule = @promotion.rules.find_by(type: Spree::Promotion::Rules::Product)
+        # pass in product ids
+        if promo_rule
+          promo_rule.update(products: Spree::Product.find(params[:promotion][:product_ids].split(",")))
+        else
+          @promotion.rules << Spree::Promotion::Rules::Product.create({preferred_match_policy: "any", products: Spree::Product.find(params[:promotion][:product_ids].split(","))})
+        end
       end
+    when 'variants'
+      if params[:promotion][:variant_ids]
+        # find promotion's product rule
+        promo_rule = @promotion.rules.find_by(type: Spree::Promotion::Rules::Variant)
+        # pass in product ids
+        if promo_rule
+          promo_rule.update(products: Spree::Product.find(params[:promotion][:variant_ids].split(",")))
+        else
+          @promotion.rules << Spree::Promotion::Rules::Variant.create({preferred_match_policy: "any", products: Spree::Variant.find(params[:promotion][:variant_ids].split(","))})
+        end
+      end
+    else
+      invalid_resource!(@promotion)
+      return
     end
 
     if params[:promotion][:first_item] || params[:promotion][:additional_item]
