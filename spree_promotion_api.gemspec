@@ -3,8 +3,7 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = 'spree_promotion_api'
   s.version     = '2.3'
-  s.summary     = 'TODO: Add gem summary here'
-  s.description = 'TODO: Add (optional) gem description here'
+  s.summary     = 'Adds a Promotion API for a subset of Spree Promotions'
   s.required_ruby_version = '>= 1.9.3'
 
   s.author    = 'Dan Friedman'
