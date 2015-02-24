@@ -14,8 +14,9 @@ Spree::Api::PromotionsController.class_eval do
     authorize! :create, Spree::Promotion
 
     @promotion = Spree::Promotion.create({
-      name: params[:promotion][:name], # pass in name
-      description: params[:promotion][:name], # pass in name as description
+      name: params[:promotion][:name],
+      description: params[:promotion][:description],
+      expires_at: params[:promotion][:expires_at],
     match_policy: 'all'}) #default
 
     case params[:promotion][:type]
@@ -46,9 +47,15 @@ Spree::Api::PromotionsController.class_eval do
     authorize! :update, @promotion
 
     if params[:promotion][:name]
-      @promotion.update(
-      name: params[:promotion][:name], # pass in name
-      description: params[:promotion][:name]) # pass in name as description
+      @promotion.update(name: params[:promotion][:name])
+    end
+
+    if params[:promotion][:description]
+      @promotion.update(description: params[:promotion][:description])
+    end
+
+    if params[:promotion][:expires_at]
+      @promotion.update(expires_at: params[:promotion][:expires_at])
     end
 
     case params[:promotion][:type]
